@@ -1,32 +1,39 @@
 import React from "react"
-import memesData from "../memesData.js"
 
 export default function Meme() {
-    /**
-     * Challenge: 
-     * 1. Set up the text inputs to save to
-     *    the `topText` and `bottomText` state variables.
-     * 2. Replace the hard-coded text on the image with
-     *    the text being saved to state.
-     */
-
     const [meme, setMeme] = React.useState({
         topText: "",
         bottomText: "",
         randomImage: "http://i.imgflip.com/1bij.jpg"
     })
-    const [allMemeImages, setAllMemeImages] = React.useState(memesData)
+    const [allMemes, setAllMemes] = React.useState([])
 
+    /**
+    useEffect takes a function as its parameter. If that function
+    returns something, it needs to be a cleanup function. Otherwise,
+    it should return nothing. If we make it an async function, it
+    automatically retuns a promise instead of a function or nothing.
+    Therefore, if you want to use async operations inside of useEffect,
+    you need to define the function separately inside of the callback
+    function, as seen below:
+    */
+
+    React.useEffect(() => {
+        async function getMemes() {
+            const res = await fetch("https://api.imgflip.com/get_memes")
+            const data = await res.json()
+            setAllMemes(data.data.memes)
+        }
+        getMemes()
+    }, [])
 
     function getMemeImage() {
-        const memesArray = allMemeImages.data.memes
-        const randomNumber = Math.floor(Math.random() * memesArray.length)
-        const url = memesArray[randomNumber].url
+        const randomNumber = Math.floor(Math.random() * allMemes.length)
+        const url = allMemes[randomNumber].url
         setMeme(prevMeme => ({
             ...prevMeme,
             randomImage: url
         }))
-
     }
 
     function handleChange(event) {
